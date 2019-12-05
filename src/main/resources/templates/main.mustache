@@ -7,25 +7,22 @@
     </form>
     <div>
             <form method="post">
-                <input type="text" name="text" placeholder="Введите сообщение" />
-                <input type="text" name="tag" placeholder="Тег">
+                <input type="text" name="text" placeholder="Enter message" />
+                <input type="text" name="tag" placeholder="UserName destination">
                 <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
-                <button type="sumbit"> Добавить </button>
+                <button type="sumbit"> Send </button>
             </form>
     </div>
+    {{#message}}
+     {{message}}
+    {{/message}}
 
-        <div>список сообщений</div>
-        <form method="post" action="filter">
-         <input type="text" name="filter">
-            <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
-            <button type="submit">Найти</button>
-        </form>
+        <div>All messages</div>
         {{#messages}}
         <div>
-            <b>{{id}}</b>
+            <i>to user:{{tag}}</i>
+            <strong> from "{{authorName}}" :</strong>
             <span>{{text}}</span>
-            <i>{{tag}}</i>
-            <strong>{{authorName}}</strong>
         </div>
         {{/messages}}
 </body>

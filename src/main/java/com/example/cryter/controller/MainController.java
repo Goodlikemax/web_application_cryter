@@ -3,6 +3,7 @@ package com.example.cryter.controller;
 import com.example.cryter.domain.Message;
 import com.example.cryter.domain.User;
 import com.example.cryter.repos.MessageRepo;
+import com.example.cryter.repos.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,8 @@ import java.util.Map;
 public class MainController {
     @Autowired
     private MessageRepo messageRepo;
+    @Autowired
+    private UserRepo userRepo;
 
     @GetMapping("/")
     public String greeting(Map<String, Object> model){
@@ -29,8 +32,9 @@ public class MainController {
     }
 
     @GetMapping("/main")
-    public String main(Map<String, Object> model){
-        Iterable<Message> messages = messageRepo.findAll();
+    public String main(@AuthenticationPrincipal User user,
+                       Map<String, Object> model){
+        Iterable<Message> messages = messageRepo.findByTag(user.getUsername());
 
         model.put("messages", messages);
         return "main";
@@ -42,29 +46,40 @@ public class MainController {
             @RequestParam String text,
             @RequestParam String tag,
             Map<String, Object> model){
-        Message message = new Message(text, tag, user);
 
-        messageRepo.save(message);
+        User userFomDb = userRepo.findByUsername(tag);
 
-        Iterable<Message> messages = messageRepo.findAll();
+        if (userFomDb == null){
+            model.put("message", "User not exist!");
 
-        model.put("messages", messages);
 
-        return "main";
-    }
-
-    @PostMapping("filter")
-    public String filter(@RequestParam String filter, Map<String, Object> model){
-        Iterable<Message> messages;
-
-        if (filter != null && !filter.isEmpty()) {
-            messages = messageRepo.findByTag(filter);
         }else {
-            messages = messageRepo.findAll();
+
+
+            Message message = new Message(text, tag, user);
+
+            messageRepo.save(message);
         }
+            Iterable<Message> messages = messageRepo.findByTag(user.getUsername());
 
-        model.put("messages", messages);
+            model.put("messages", messages);
 
-        return "main";
+            return "main";
+
     }
+
+//    @PostMapping("filter")
+//    public String filter(@RequestParam String filter, Map<String, Object> model){
+//        Iterable<Message> messages;
+//
+//        if (filter != null && !filter.isEmpty()) {
+//            messages = messageRepo.findByTag(filter);
+//        }else {
+//            messages = messageRepo.findAll();
+//        }
+//
+//        model.put("messages", messages);
+//
+//        return "main";
+//    }
 }
